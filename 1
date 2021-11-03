@@ -1,0 +1,192 @@
+
+#  RUN_SERIES_DAILY2005
+
+#
+
+SCR_NAME=RUN_SERIES_DAILY2005
++ SCR_NAME=RUN_SERIES_DAILY2005
+SCR_PARM=0
++ SCR_PARM=0
+SCR_LIST="CASE ETA_IN GROUP JOB_FILE"
++ SCR_LIST='CASE ETA_IN GROUP JOB_FILE'
+SCR_VERS=100622.0
++ SCR_VERS=100622.0
+
+SCR_DBG="#"
++ SCR_DBG='#'
+export SCR_DBG
++ export SCR_DBG
+
+if [ `expr $#` -lt $SCR_PARM ]; then
+   echo "Usage: $SCR_NAME ${SCR_LIST}\007"
+   exit 101
+fi
+expr $#
+++ expr 0
++ '[' 0 -lt 0 ']'
+
+Date=`date +%y%m%d`
+date +%y%m%d
+++ date +%y%m%d
++ Date=200629
+
+DateTime=`date '+DATE: %m/%d/%y  TIME: %H:%M:%S'`
+date '+DATE: %m/%d/%y  TIME: %H:%M:%S'
+++ date '+DATE: %m/%d/%y  TIME: %H:%M:%S'
++ DateTime='DATE: 06/29/20  TIME: 13:04:44'
+
+echo " # "
++ echo ' # '
+echo " #  $SCR_NAME $* "
++ echo ' #  RUN_SERIES_DAILY2005  '
+echo " # "
++ echo ' # '
+echo " #  Version $SCR_VERS "
++ echo ' #  Version 100622.0 '
+echo " # "
++ echo ' # '
+echo " #  Run Date $DateTime "
++ echo ' #  Run Date DATE: 06/29/20  TIME: 13:04:44 '
+echo " # "
++ echo ' # '
+
+
+CASE=CRD2TDF
++ CASE=CRD2TDF
+
+#exec > /umbc/epavlis/data01/LOCAL/magdak/tmp/magda/RUN_SERIES_IERS_OPS2005.${CASE}.$Date.$$.log 2>&1
+
+MAIN_PATH=/umbc/epavlis/data01/LOCAL/magdak
++ MAIN_PATH=/umbc/epavlis/data01/LOCAL/magdak
+SCRIPTS=/umbc/epavlis/data01/LOCAL/magdak/scripts/OPS_DATA_CRD
++ SCRIPTS=/umbc/epavlis/data01/LOCAL/magdak/scripts/OPS_DATA_CRD
+DISK=umbc/epavlis/data01/LOCAL/magdak/MISSIONS
++ DISK=umbc/epavlis/data01/LOCAL/magdak/MISSIONS
+
+TDF2GDYN=tdf0901p0_i64_sun_RM=8.x
++ TDF2GDYN=tdf0901p0_i64_sun_RM=8.x
+
+export TDF2GDYN DISK SCRIPTS MAIN_PATH
++ export TDF2GDYN DISK SCRIPTS MAIN_PATH
+
+
+cd /umbc/epavlis/data01/LOCAL/magdak/tmp/magda
++ cd /umbc/epavlis/data01/LOCAL/magdak/tmp/magda
+wkTmp=$$
++ wkTmp=10745
+mkdir ${CASE}${wkTmp}
++ mkdir CRD2TDF10745
+cd ${CASE}${wkTmp}
++ cd CRD2TDF10745
+CDIR=/umbc/epavlis/data01/LOCAL/magdak/tmp/magda/${CASE}${wkTmp}
++ CDIR=/umbc/epavlis/data01/LOCAL/magdak/tmp/magda/CRD2TDF10745
+echo ${CASE}${wkTmp} > /umbc/epavlis/data01/LOCAL/magdak/tmp/magda/${CASE}_wDIR_$Date
++ echo CRD2TDF10745
+
+DIR_2_TAR=${CASE}_wDIR_$Date
++ DIR_2_TAR=CRD2TDF_wDIR_200629
+
+export DIR_2_TAR CDIR
++ export DIR_2_TAR CDIR
+
+
+export CDIR CASE 
++ export CDIR CASE
+
+
+#--------------------------------------
+#  Start the process
+#--------------------------------------
+
+CASED=DAILY
++ CASED=DAILY
+
+#
+#  Read year, doy, date and arc-name for the old, current and future arcs:
+#
+
+read OYEAR ODOY Date_OLD_ARC OLD < $MAIN_PATH/INFILES/INF_OPS_D/ARC_SETUP_OLD.$CASED
++ read OYEAR ODOY Date_OLD_ARC OLD
+read NYEAR NDOY Date_NEW_ARC ARC < $MAIN_PATH/INFILES/INF_OPS_D/ARC_SETUP_NEW.$CASED
++ read NYEAR NDOY Date_NEW_ARC ARC
+read XYEAR XDOY Date_NXT_ARC NXT < $MAIN_PATH/INFILES/INF_OPS_D/ARC_SETUP_NXT.$CASED
++ read XYEAR XDOY Date_NXT_ARC NXT
+
+
+export NYEAR Date_NEW_ARC  Date_OLD_ARC
++ export NYEAR Date_NEW_ARC Date_OLD_ARC
+
+#--------------------------------------
+#  Get the SLR CRD data from CDDIS or EDC:
+#--------------------------------------
+#
+
+YY=`echo $NYEAR | cut -c3-4`
+echo $NYEAR | cut -c3-4
+++ echo 2020
+++ cut -c3-4
++ YY=20
+#
+##  For analyzing past arcs, do not need to re-get the QL data! But we will need this for the operational script!!!
+#
+
+year=$NYEAR
++ year=2020
+OLD_ARC=${OYEAR}${Date_OLD_ARC}
++ OLD_ARC=2020200621
+NEW_ARC=${NYEAR}${Date_NEW_ARC}
++ NEW_ARC=2020200622
+
+
+mkdir /tmp/getSLR$$
++ mkdir /tmp/getSLR10745
+cd  /tmp/getSLR$$
++ cd /tmp/getSLR10745
+
+#IF DF for 9 will be ready
+#20180920
+$SCRIPTS/GNSS/GNSS_2_TDF_ARC_CRD_P2 $year GNSS GNSS GNSS $YY 9 $MAIN_PATH/MISSIONS $OLD_ARC $NEW_ARC > o.GNSS_2_TDF_ARC_CRD_P2 2>&1
++ /umbc/epavlis/data01/LOCAL/magdak/scripts/OPS_DATA_CRD/GNSS/GNSS_2_TDF_ARC_CRD_P2 2020 GNSS GNSS GNSS 20 9 /umbc/epavlis/data01/LOCAL/magdak/MISSIONS 2020200621 2020200622
+#cp o.TEST_SAT_4_ARC   $SCRIPTS/GNSS/.
+cp o.GNSS_2_TDF_ARC_CRD_P2 $SCRIPTS/GNSS/.
++ cp o.GNSS_2_TDF_ARC_CRD_P2 /umbc/epavlis/data01/LOCAL/magdak/scripts/OPS_DATA_CRD/GNSS/.
+#exit 200214
+#> o.L1_${YY}_CRD_P2  2>&1
+cd /umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/TDF/
++ cd /umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/TDF/
+ls -1 crddata.${NEW_ARC}.*.tdf.Z > TDF_LIST0
++ ls -1 crddata.2020200622.BeiDou-3M10_20.tdf.Z crddata.2020200622.BeiDou-3M2_20.tdf.Z crddata.2020200622.BeiDou-3M3_20.tdf.Z crddata.2020200622.BeiDou-3M9_20.tdf.Z crddata.2020200622.Galileo-102_20.tdf.Z crddata.2020200622.Galileo-202_20.tdf.Z crddata.2020200622.Galileo-209_20.tdf.Z crddata.2020200622.Galileo-210_20.tdf.Z crddata.2020200622.GLONASS-131_20.tdf.Z crddata.2020200622.GLONASS-134_20.tdf.Z crddata.2020200622.GLONASS-138_20.tdf.Z crddata.2020200622.GLONASS-139_20.tdf.Z crddata.2020200622.IRNSS-1B_20.tdf.Z crddata.2020200622.IRNSS-1C_20.tdf.Z crddata.2020200622.IRNSS-1D_20.tdf.Z crddata.2020200622.IRNSS-1E_20.tdf.Z crddata.2020200622.IRNSS-1F_20.tdf.Z crddata.2020200622.IRNSS-1I_20.tdf.Z crddata.2020200622.QZS-1_20.tdf.Z crddata.2020200622.QZS-2_20.tdf.Z crddata.2020200622.QZS-3_20.tdf.Z crddata.2020200622.QZS-4_20.tdf.Z
+sed -e "s/\.Z//" TDF_LIST0 > TDF_LIST
++ sed -e 's/\.Z//' TDF_LIST0
+$SCRIPTS/GNSS/tdfmerger_GNSS $YY GNSS > o.DELET 2>&1 
++ /umbc/epavlis/data01/LOCAL/magdak/scripts/OPS_DATA_CRD/GNSS/tdfmerger_GNSS 20 GNSS
+
+
+
+\rm /umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/CRD/crddata.${Date_NEW_ARC}.*
++ rm '/umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/CRD/crddata.200622.*'
+rm: cannot remove ‘/umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/CRD/crddata.200622.*’: No such file or directory
+\rm /umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/MTR2/crddata.${Date_NEW_ARC}.*.mr2.Z
++ rm '/umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/MTR2/crddata.200622.*.mr2.Z'
+rm: cannot remove ‘/umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/MTR2/crddata.200622.*.mr2.Z’: No such file or directory
+\rm /umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/TDF/crddata.${Date_NEW_ARC}.*.tdf.Z
++ rm '/umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/TDF/crddata.200622.*.tdf.Z'
+rm: cannot remove ‘/umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/TDF/crddata.200622.*.tdf.Z’: No such file or directory
+
+cat /umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/TDF/GNSS_output_$YY > MAIL1
++ cat /umbc/epavlis/data01/LOCAL/magdak/MISSIONS/GNSS/d_base/data/TDF/GNSS_output_20
+mailx -s "GNSS DATA DONE PERSEUS2"  magdak@umbc.edu < MAIL1
++ mailx -s 'GNSS DATA DONE PERSEUS2' magdak@umbc.edu
+#mailx -s "GNSS DATA DONE PERSEUS2"  epavlis@umbc.edu < MAIL1
+$SCRIPTS/GNSS/TEST_SAT_4_ARC > o.TEST_SAT_4_ARC 2>&1 
++ /umbc/epavlis/data01/LOCAL/magdak/scripts/OPS_DATA_CRD/GNSS/TEST_SAT_4_ARC
+cp o.TEST_SAT_4_ARC   $SCRIPTS/GNSS/.
++ cp o.TEST_SAT_4_ARC /umbc/epavlis/data01/LOCAL/magdak/scripts/OPS_DATA_CRD/GNSS/.
+cd /tmp/
++ cd /tmp/
+\rm -r getSLR$$
++ rm -r getSLR10745
+
+
+exit 0
++ exit 0
